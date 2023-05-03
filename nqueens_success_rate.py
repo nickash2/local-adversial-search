@@ -145,7 +145,6 @@ def heuristic_state_space(board):
     board[move_queen_in_collumn - 1] = move_queen_to_position
     return board
 
-
 def heuristic_state_space_improved(board):
     heuristic_state_space = state_space(board)
     best_successor_evaluation = evaluate_state(board)
@@ -230,7 +229,7 @@ def hill_climbing_pseudo_code(board):
 
     while evaluate_state(board) != optimum:
         i += 1
-        print('iteration ' + str(i) + ': evaluation = ' + str(evaluate_state(board)))
+        #print('iteration ' + str(i) + ': evaluation = ' + str(evaluate_state(board)))
         if i == 1000:  # Give up after 1000 tries.
             break
         board_evaluation = evaluate_state(board)
@@ -242,8 +241,8 @@ def hill_climbing_pseudo_code(board):
     if evaluate_state(board) == optimum:
         print('Solved puzzle!')
 
-    print('Final state is:')
-    print_board(board)
+    #print('Final state is:')
+    #print_board(board)
 
 
 def hill_climbing_improved(board):
@@ -280,8 +279,8 @@ def hill_climbing_improved(board):
     if evaluate_state(board) == optimum:
         print('Solved puzzle!')
 
-    print('Final state is:')
-    print_board(board)
+    #print('Final state is:')
+    #print_board(board)
 
 
 def time_to_temperature(board):
@@ -289,28 +288,13 @@ def time_to_temperature(board):
 
 
 def simulated_annealing(board):
-
-    i = 0
-    optimum = (len(board) - 1) * len(board) / 2
-    current_succesors = set()
-    for idx in range(1000):
-      board = heuristic_state_space_improved(board)
-      temperature = time_to_temperature()
-      if (temperature == 0):
-            print('Solved puzzle!')
-            break   # breaks to return board
-        next_successor = random.choice(current_succesors)
-        deltaE = next_successor - board[i]        #heuristics?
-        
-        if (deltaE > 0):
-            board[i] = next_successor
-        else:
-            board[i] = next_successor * math.exp(deltaE / temperature)
-        
+    """
+    Implement this yourself.
+    :param board:
+    :return:
+    """
     
-    print('Final state is:')
-    print_board(board)
-    
+    pass
 
 
 def main():
@@ -331,31 +315,35 @@ def main():
         print('Usage: python n_queens.py NUMBER')
         return False
 
-    print('Which algorithm to use?')
-    algorithm = input('1: random, 2: hill-climbing (pseudo code), 3: hill-climbing (improved), 4: simulated annealing \n')
+    i = 0
+    while (i != 9):
+        print('Which algorithm to use?')
+        algorithm = 2 #input('1: random, 2: hill-climbing (pseudo code), 3: hill-climbing (improved), 4: simulated annealing \n')
 
-    try:
-        algorithm = int(algorithm)
+        try:
+            algorithm = int(algorithm)
 
-        if algorithm not in range(1, 5):
-            raise ValueError
+            if algorithm not in range(1, 5):
+                raise ValueError
 
-    except ValueError:
-        print('Please input a number in the given range!')
-        return False
+        except ValueError:
+            print('Please input a number in the given range!')
+            return False
 
-    board = init_board(n_queens)
-    print('Initial board: \n')
-    print_board(board)
+        board = init_board(n_queens)
+        #print('Initial board: \n')
+        #print_board(board)
 
-    if algorithm == 1:
-        random_search(board)
-    if algorithm == 2:
-        hill_climbing_pseudo_code(board)
-    if algorithm == 3:
-        hill_climbing_improved(board)
-    if algorithm == 4:
-        simulated_annealing(board)
+        if algorithm == 1:
+            random_search(board)
+        if algorithm == 2:
+            hill_climbing_pseudo_code(board)
+        if algorithm == 3:
+            hill_climbing_improved(board)
+        if algorithm == 4:
+            simulated_annealing(board)
+        
+        i = i + 1 
 
 
 # This line is the starting point of the program.
