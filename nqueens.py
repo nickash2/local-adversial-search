@@ -187,8 +187,8 @@ def random_search(board):
 
 	while evaluate_state(board) != optimum:
 		i += 1
-		print('iteration ' + str(i) + ': evaluation = ' +
-			  str(evaluate_state(board)))
+		# print('iteration ' + str(i) + ': evaluation = ' +
+		# 	  str(evaluate_state(board)))
 		if i == 1000:  # Give up after 1000 tries.
 			break
 
@@ -285,6 +285,7 @@ def hill_climbing_improved(board):
 
 
 def time_to_temperature(k, kmax):
+    
 	return (1 - ((k + 1) / kmax))
 
 
@@ -306,21 +307,24 @@ def simulated_annealing(board):
 	current_energy = count_conflicts(current)
 	
 	kmax = 1000
-	
+	time = 0
+ 
 	for time in range(kmax):
+		
 		temperature = time_to_temperature(time, kmax)
 		if (temperature == 0):
-			print('Solved puzzle!')
+			if (time < kmax):
+				print('Solved puzzle!')
 			break   # breaks to return board
 			
 		next_successor = random_successor(current)
 		deltaE = count_conflicts(next_successor) - current_energy        #heuristics?
 		
-		if (deltaE > 0):
+		if (deltaE < 0):
 			current = next_successor
 			current_energy = count_conflicts(current)
 		else:
-			probability = math.exp(deltaE / temperature)
+			probability = math.exp(-deltaE / temperature)
 			if (random.uniform(0,1) < probability):
 				current = next_successor
 				current_energy = count_conflicts(current)
