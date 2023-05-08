@@ -289,30 +289,31 @@ def time_to_temperature(k, kmax):
 
 
 def random_successor(board):
+    # Select a random column index
+    random_col = random.randint(0, len(board)-1)
+    
+    # Generate a new board by moving the queen in the random column to a random row
+    new_board = board.copy()
+    new_board[random_col] = random.randint(0, len(board)-1)
+    
+    return new_board
 
-	# For each column, place the queen in a random row
-	for column, row in enumerate(board):
-		board[column] = random.randint(0, len(board)-1)
-
-	return board
     
 
 def simulated_annealing(board):
-	initial_state = board
+	initial_state = board.copy()
 	current = initial_state
 	current_energy = count_conflicts(current)
 	
 	kmax = 1000
 	
 	for time in range(kmax):
-		board, current_succesors = heuristic_state_space_improved(board)
 		temperature = time_to_temperature(time, kmax)
-  
 		if (temperature == 0):
 			print('Solved puzzle!')
 			break   # breaks to return board
 			
-		next_successor = random_successor(board)
+		next_successor = random_successor(current)
 		deltaE = count_conflicts(next_successor) - current_energy        #heuristics?
 		
 		if (deltaE > 0):
@@ -326,7 +327,7 @@ def simulated_annealing(board):
 		
 	
 	print('Final state is:')
-	print_board(board)
+	print_board(current)
 	
 
 
