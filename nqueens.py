@@ -314,7 +314,7 @@ def simulated_annealing(board):
 		temperature = time_to_temperature(time, kmax)
 		if (temperature == 0):
 			if (time < kmax):
-				print('Solved puzzle!')
+				print('Solved puzzle!')    # TODO: FIX PRINTING WHEN SOLVED
 			break   # breaks to return board
 			
 		next_successor = random_successor(current)
