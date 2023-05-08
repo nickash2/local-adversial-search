@@ -9,7 +9,7 @@ The following is an implementation of various local & adversial search algorithm
 
 ## TODO List:
    
-TBA
+- [ ] Fix printing in simulated annealing when finding solutions
 
 #### Notes
 * **Before committing anything, ensure that it is autopep8'd by using the command:** 
