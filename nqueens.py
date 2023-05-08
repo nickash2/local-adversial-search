@@ -334,24 +334,32 @@ def simulated_annealing(board):
 	print_board(current)
 	
 
-def findFitness(board):
+def findFitness(chromosome, maxFitness):
     pass	# num of non-attacking pairs of queens
 
 
-def randomSelection(board):
-	pass
+def randomSelection(population):
+	return random.choice(population)
 
 
 def reproduce(parent1, parent2):
     pass	# find crossover point 
 
 
-def mutate(board):
-    pass	#  CHOOSING A QUEEN AT RANDOM AND MOVING IT TO A RANDOM SQUARE IN ITS COLUMN
+def mutate(child):
+#  CHOOSING A QUEEN AT RANDOM AND MOVING IT TO A RANDOM SQUARE IN ITS COLUMN
+	length = len(child)
+	rand_col = random.randint(0, length - 1)
+	rand_row = random.randint(0, length - 1)
+	child[rand_col] = rand_row
+	return child
 
+
+def probability(chromosome, maxFitness):
+    return findFitness(chromosome, maxFitness) / maxFitness 
 
 def genetic_algorithm(board):
-	population = board.copy()
+	population = board.copy()    # randomly generated states
 	maxtime = 1000
 	time = 0
 	while True:
