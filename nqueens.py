@@ -334,6 +334,41 @@ def simulated_annealing(board):
 	print_board(current)
 	
 
+def findFitness(board):
+    pass	# num of non-attacking pairs of queens
+
+
+def randomSelection(board):
+	pass
+
+
+def reproduce(parent1, parent2):
+    pass	# find crossover point 
+
+
+def mutate(board):
+    pass	#  CHOOSING A QUEEN AT RANDOM AND MOVING IT TO A RANDOM SQUARE IN ITS COLUMN
+
+
+def genetic_algorithm(board):
+	population = board.copy()
+	maxtime = 1000
+	time = 0
+	while True:
+		time += 1
+		if (time == maxtime):
+			break
+		new_population = []
+
+		for idx in range(len(board)):
+			x = randomSelection(population)
+			y = randomSelection(population)
+			child = reproduce(x,y)
+			if (probability):
+				child = mutate(child)
+			new_population.append(child)
+		population = new_population
+
 
 def main():
 	"""
