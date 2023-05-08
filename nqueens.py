@@ -334,8 +334,8 @@ def simulated_annealing(board):
 	print_board(current)
 	
 
-def findFitness(chromosome, maxFitness):
-    pass	# num of non-attacking pairs of queens
+def findFitness(board):
+	return count_conflicts(board)
 
 
 def randomSelection(population):
@@ -356,7 +356,8 @@ def mutate(child):
 
 
 def probability(chromosome, maxFitness):
-    return findFitness(chromosome, maxFitness) / maxFitness 
+    return findFitness(chromosome) / maxFitness 
+
 
 def genetic_algorithm(board):
 	population = board.copy()    # randomly generated states
