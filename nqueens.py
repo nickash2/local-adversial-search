@@ -300,7 +300,6 @@ def random_successor(board):
     return new_board
 
     
-
 def simulated_annealing(board):
 	initial_state = board.copy()
 	current = initial_state
@@ -334,16 +333,40 @@ def simulated_annealing(board):
 	print_board(current)
 	
 
-def findFitness(board):
-	return count_conflicts(board)
+def findFitness(board, nqueens):
+	totalnum = math.comb(nqueens, 2)	# nqueens choose 2
+	return totalnum - count_conflicts(board)
 
 
 def randomSelection(population):
-	return random.choice(population)
+	weights = [findFitness(population[i], len(population[0])) for i in range(len(population))]
+	return random.choices(population, weights=weights)[0]
+
+
+def split_list(a_list):
+	half = len(a_list) // 2
+	if len(a_list) % 2 == 0:
+		return a_list[:half], a_list[half:]
+	else:
+		return a_list[:half + 1], a_list[half + 1:] # renam this 
+
+
+def crossover(parent1, parent2):
+	child1left, child2right = split_list(parent1.copy())
+	child2left, child1right = split_list(parent2.copy())
+	# print('parent1: ' + str(parent1))
+	# print('parent2: ' + str(parent2))
+	# print(child1left)
+	# print(child1right)
+	# print('--------')
+	# print(child2left)
+	# print(child2right)
+	return (child1left + child1right), (child2left + child2right)
 
 
 def reproduce(parent1, parent2):
-    pass	# find crossover point 
+	child1, child2 = crossover(parent1, parent2)
+	return child1, child2
 
 
 def mutate(child):
@@ -355,28 +378,53 @@ def mutate(child):
 	return child
 
 
-def probability(chromosome, maxFitness):
-    return findFitness(chromosome) / maxFitness 
+def probability(chromosome, nqueens, maxFitness):
+	
+	return findFitness(chromosome, nqueens) / maxFitness 
 
+
+def evaluatePopulation(population, nqueens, maxFitness):
+	for idx in range(len(population)):
+		if (findFitness(population[idx], nqueens) == maxFitness):
+			return idx
+	return -1
 
 def genetic_algorithm(board):
-	population = board.copy()    # randomly generated states
+	nqueens = len(board)
+	population = [init_board(nqueens) for j  in range(nqueens) for k in range(nqueens)]
 	maxtime = 1000
+	maxFitness = math.comb(nqueens, 2)
 	time = 0
 	while True:
 		time += 1
 		if (time == maxtime):
+			print('Time exceeded')
 			break
+
 		new_population = []
 
-		for idx in range(len(board)):
+		for idx in range(len(population)):
 			x = randomSelection(population)
 			y = randomSelection(population)
-			child = reproduce(x,y)
-			if (probability):
-				child = mutate(child)
-			new_population.append(child)
+			child1, child2 = reproduce(x,y)
+			if (random.uniform(0,1) < 0.2):
+				child1 = mutate(child1)
+			if (random.uniform(0,1) < 0.2):
+				child2 = mutate(child2)
+			new_population.append(child1)
+			new_population.append(child2)
+
 		population = new_population
+  
+		evalResult = evaluatePopulation(population, nqueens, maxFitness)
+		if (evalResult != -1):
+			print('Solved Puzzle!')
+			print('Final state is:')
+			print_board(population[evalResult])
+			break
+		
+	
+
 
 
 def main():
@@ -398,12 +446,12 @@ def main():
 		return False
 
 	print('Which algorithm to use?')
-	algorithm = input('1: random, 2: hill-climbing (pseudo code), 3: hill-climbing (improved), 4: simulated annealing \n')
+	algorithm = input('1: random, 2: hill-climbing (pseudo code), 3: hill-climbing (improved), 4: simulated annealing 5: Genetic Algorithm\n')
 
 	try:
 		algorithm = int(algorithm)
 
-		if algorithm not in range(1, 5):
+		if algorithm not in range(1, 6):
 			raise ValueError
 
 	except ValueError:
@@ -422,6 +470,9 @@ def main():
 		hill_climbing_improved(board)
 	if algorithm == 4:
 		simulated_annealing(board)
+	if algorithm == 5:
+		genetic_algorithm(board)
+		
 
 
 # This line is the starting point of the program.
