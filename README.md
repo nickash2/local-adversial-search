@@ -9,9 +9,9 @@ The following is an implementation of various local & adversial search algorithm
 
 ## TODO List:
    
-- [ ] Fix printing in simulated annealing when finding solutions
-- [ ] Add success rates of questions in simulated annealing & hill climbing
-- [ ] Start the genetic algorithms
+- [x] Fix printing in simulated annealing when finding solutions
+- [x] Add success rates of questions in simulated annealing & hill climbing
+- [x] Start the genetic algorithms
 
 #### Notes
 * **Before committing anything, ensure that it is autopep8'd by using the command:** 
