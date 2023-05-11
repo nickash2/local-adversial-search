@@ -1,7 +1,6 @@
 import sys
 import random
 import math
-import timeit
 
 MAXQ = 100
 
@@ -73,7 +72,7 @@ def print_board(board):
 	Prints the board in a human readable format in the terminal.
 	:param board: The board with all the queens.
 	"""
-	#print("\n")
+	print("\n")
 
 	for row in range(len(board)):
 		line = ''
@@ -104,20 +103,6 @@ def init_board(nqueens):
 ------------------ Do not change the code above! ------------------
 """
 
-
-def state_space(board):
-	state_space = []
-
-	for column, row in enumerate(board):
-		for state in range(len(board)):
-			if state == row:
-				state_space.append('Q')
-			if state != row:
-				state_space.append('.')
-
-	return state_space
-
-
 def heuristic_state_space(board):
 	heuristic_state_space = state_space(board)
 	best_successor_evaluation = evaluate_state(board)
@@ -146,34 +131,46 @@ def heuristic_state_space(board):
 	board[move_queen_in_collumn - 1] = move_queen_to_position
 	return board
 
+def state_space(board):
+    state_space = []
+
+    for column, row in enumerate(board):
+        for state in range(len(board)):
+            if state == row:
+                state_space.append('Q')
+            if state != row:
+                state_space.append('.')
+
+    return state_space
+
 
 def heuristic_state_space_improved(board):
-	heuristic_state_space = state_space(board)
-	best_successor_evaluation = evaluate_state(board)
-	set_of_best_successors = []
-	i = 0
-	for column, row in enumerate(board):
-		for possible_successor in range(len(board)):
-			# if current queen is not at that state
-			if possible_successor != row:
-				possible_successor_board = board.copy()
-				possible_successor_board[column] = possible_successor
-				successor_evaluation = evaluate_state(possible_successor_board)
-				heuristic_state_space[i] = successor_evaluation
-				if successor_evaluation == best_successor_evaluation:
-					set_of_best_successors.append(i)
-				if successor_evaluation > best_successor_evaluation:
-					best_successor_evaluation = successor_evaluation
-					set_of_best_successors.clear()
-					set_of_best_successors.append(i)
-			i = i + 1
-	best_successor = random.choice(set_of_best_successors)
+    heuristic_state_space = state_space(board)
+    best_successor_evaluation = evaluate_state(board)
+    set_of_best_successors = []
+    i = 0
+    for column, row in enumerate(board):
+        for possible_successor in range(len(board)):
+            # if current queen is not at that state
+            if possible_successor != row:
+                possible_successor_board = board.copy()
+                possible_successor_board[column] = possible_successor
+                successor_evaluation = evaluate_state(possible_successor_board)
+                heuristic_state_space[i] = successor_evaluation
+                if successor_evaluation == best_successor_evaluation:
+                    set_of_best_successors.append(i)
+                if successor_evaluation > best_successor_evaluation:
+                    best_successor_evaluation = successor_evaluation
+                    set_of_best_successors.clear()
+                    set_of_best_successors.append(i)
+            i = i + 1
+    best_successor = random.choice(set_of_best_successors)
 
-	move_queen_in_collumn = math.ceil((best_successor + 1) / len(board))
-	move_queen_to_position = best_successor - \
-		((move_queen_in_collumn - 1) * len(board))
-	board[move_queen_in_collumn - 1] = move_queen_to_position
-	return board
+    move_queen_in_collumn = math.ceil((best_successor + 1) / len(board))
+    move_queen_to_position = best_successor - \
+        ((move_queen_in_collumn - 1) * len(board))
+    board[move_queen_in_collumn - 1] = move_queen_to_position
+    return board
 
 
 def random_search(board):
@@ -188,8 +185,8 @@ def random_search(board):
 
 	while evaluate_state(board) != optimum:
 		i += 1
-		# print('iteration ' + str(i) + ': evaluation = ' +
-		# 	  str(evaluate_state(board)))
+		print('iteration ' + str(i) + ': evaluation = ' +
+		 	  str(evaluate_state(board)))
 		if i == 1000:  # Give up after 1000 tries.
 			break
 
@@ -231,7 +228,7 @@ def hill_climbing_pseudo_code(board):
 
 	while evaluate_state(board) != optimum:
 		i += 1
-		#print('iteration ' + str(i) + ': evaluation = ' + str(evaluate_state(board)))
+		print('iteration ' + str(i) + ': evaluation = ' + str(evaluate_state(board)))
 		if i == 1000:  # Give up after 1000 tries.
 			break
 		board_evaluation = evaluate_state(board)
@@ -241,12 +238,10 @@ def hill_climbing_pseudo_code(board):
 			break
 
 	if evaluate_state(board) == optimum:
-		
 		print('Solved puzzle!')
-		return True
 
-	# print('Final state is:')
-	# print_board(board)
+	print('Final state is:')
+	print_board(board)
 
 
 def hill_climbing_improved(board):
@@ -274,58 +269,49 @@ def hill_climbing_improved(board):
 
 	while evaluate_state(board) != optimum:
 		i += 1
-		#print('iteration ' + str(i) + ': evaluation = ' + str(evaluate_state(board)))
+		print('iteration ' + str(i) + ': evaluation = ' +
+str(evaluate_state(board)))
 		if i == 1000:  # Give up after 1000 tries.
 			break
-		board = heuristic_state_space_improved(board)
+		board = heuristic_state_space(board)
 
 	if evaluate_state(board) == optimum:
-		
 		print('Solved puzzle!')
-		return True
 
-	
+	print('Final state is:')
+	print_board(board)
 
 
 def time_to_temperature(k, kmax):
-	
 	return (1 - ((k + 1) / kmax))
 
 
-def time_to_temperature_slow(t): # too slowly
-	return 1 / math.log(t + 2)
-
-
-def time_to_temperature_fast(t, kmax):
-	return 1 - (t / kmax) ** 2
-
-
 def random_successor(board):
-	# Select a random column index
-	random_col = random.randint(0, len(board)-1)
-	
-	# Generate a new board by moving the queen in the random column to a random row
-	new_board = board.copy()
-	new_board[random_col] = random.randint(0, len(board)-1)
-	
-	return new_board
+    # Select a random column index
+    random_col = random.randint(0, len(board)-1)
+    
+    # Generate a new board by moving the queen in the random column to a random row
+    new_board = board.copy()
+    new_board[random_col] = random.randint(0, len(board)-1)
+    
+    return new_board
 
-	
+    
+
 def simulated_annealing(board):
 	initial_state = board.copy()
 	current = initial_state
 	current_energy = count_conflicts(current)
 	
-	kmax = 10000
-	time = 0	
-	
+	kmax = 1000
+	time = 0
  
 	for time in range(kmax):
 		
-		temperature = time_to_temperature_slow(time)
+		temperature = time_to_temperature(time, kmax)
 		if (temperature == 0):
 			if (time < kmax):
-				solution_found = True
+				print('Solved puzzle!')    # TODO: FIX PRINTING WHEN SOLVED
 			break   # breaks to return board
 			
 		next_successor = random_successor(current)
@@ -340,50 +326,22 @@ def simulated_annealing(board):
 				current = next_successor
 				current_energy = count_conflicts(current)
 		
-	if count_conflicts(current) == 0:
-		
-		print('Solved Puzzle!')
-		return True
-  
-	else:
-		print('No Solution Found!')
-		return False
+	
 	print('Final state is:')
 	print_board(current)
+	
 
-def findFitness(board, nqueens):
-	totalnum = math.comb(nqueens, 2)	# nqueens choose 2
-	return totalnum - count_conflicts(board)
-
-
-def randomSelection(population, weights):
-	return random.choices(population, weights=weights, k=1)[0]
+def findFitness(board):
+	return count_conflicts(board)
 
 
-def split_list(a_list):
-	half = len(a_list) // 2
-	if len(a_list) % 2 == 0:
-		return a_list[:half], a_list[half:]
-	else:
-		return a_list[:half + 1], a_list[half + 1:] # renam this 
-
-
-def crossover(parent1, parent2):
-	child1left, child2right = split_list(parent1.copy())
-	child2left, child1right = split_list(parent2.copy())
-	# print('parent1: ' + str(parent1))
-	# print('parent2: ' + str(parent2))
-	# print(child1left)
-	# print(child1right)
-	# print('--------')
-	# print(child2left)
-	# print(child2right)
-	return (child1left + child1right), (child2left + child2right)
-
+def random_selection(population):
+	for column, row in enumerate(population):
+			population[column] = random.randint(0, len(population)-1)
+	return population
 
 def reproduce(parent1, parent2):
-	child1, child2 = crossover(parent1, parent2)
-	return child1, child2
+    pass	# find crossover point 
 
 
 def mutate(child):
@@ -395,65 +353,28 @@ def mutate(child):
 	return child
 
 
-def evaluatePopulation(population, nqueens, maxFitness):
-	for idx in range(len(population)):
-		if (findFitness(population[idx], nqueens) == maxFitness):
-			return idx
-	return -1
+def probability(chromosome, maxFitness):
+    return findFitness(chromosome) / maxFitness 
+
 
 def genetic_algorithm(board):
-	startTime = timeit.default_timer()
-	nqueens = len(board)
-	population = [init_board(nqueens) for j in range(nqueens) for k in range(100)]
-	maxtime = 10
-	maxFitness = math.comb(nqueens, 2)
+	population = board.copy()    # randomly generated states
+	maxtime = 1000
 	time = 0
-	elitism_num = 10  # number of best individuals to transfer to next generation
-	
 	while True:
-		elapsed_time = timeit.default_timer() - startTime
-		
-		if (elapsed_time > maxtime):
-			print('Time exceeded')
+		time += 1
+		if (time == maxtime):
 			break
-
 		new_population = []
-		weights = [findFitness(population[i], len(population[0])) for i in range(len(population))]
-		sorted_population = [p for _, p in sorted(zip(weights, population), reverse=True)]
-		new_population.extend(sorted_population[:elitism_num])  # add best individuals to new population
-		
-		for idx in range(elitism_num, len(population)):
-			if (elapsed_time > maxtime):
-				print('Time exceeded')
-				break
-			x = randomSelection(population, weights)
-			y = randomSelection(population, weights)
-			child1, child2 = reproduce(x,y)
-			if (random.uniform(0,1) < 0.2):
-				child1 = mutate(child1)
-			if (random.uniform(0,1) < 0.2):
-				child2 = mutate(child2)
-			new_population.append(child1)
-			new_population.append(child2)
 
-		print('Broken out of for loop')
-		print(len(population))
-		
+		for idx in range(len(board)):
+			x = random_successor(population)
+			y = random_successor(population)
+			child = reproduce(x,y)
+			if (probability):
+				child = mutate(child)
+			new_population.append(child)
 		population = new_population
-
-		evalResult = evaluatePopulation(population, nqueens, maxFitness)
-		if (evalResult != -1):
-			print('Solved Puzzle!')
-			print('Final state is:')
-			print_board(population[evalResult])
-			return True
-			break
-
-	endtime = timeit.default_timer()
-	print('Time is ' + str(endtime - startTime))
-
-	
-
 
 
 def main():
@@ -475,7 +396,7 @@ def main():
 		return False
 
 	print('Which algorithm to use?')
-	algorithm = input('1: random, 2: hill-climbing (pseudo code), 3: hill-climbing (improved), 4: simulated annealing 5: Genetic Algorithm\n')
+	algorithm = input('1: random, 2: hill-climbing (pseudo code), 3: hill-climbing (improved), 4: simulated annealing, 5: genetic algorithm \n')
 
 	try:
 		algorithm = int(algorithm)
@@ -486,42 +407,21 @@ def main():
 	except ValueError:
 		print('Please input a number in the given range!')
 		return False
-	i = 1
-	success = 0
-	while (i != 11):
-		board = init_board(n_queens)
-		#print('Initial board: \n')
-		print('\n-------------------\n Board #: ' + str(i) + '\n-------------------')
-		print_board(board)
-		if algorithm == 1:
-			random_search(board)
-		if algorithm == 2:
-			if hill_climbing_pseudo_code(board):
-				success += 1
-			else:
-				print('Not solved!')
-			
-		if algorithm == 3:
-			if (hill_climbing_improved(board)):
-				success += 1
-			else:
-				print('Not solved!')
-			
-		if algorithm == 4:
-			if (simulated_annealing(board)):
-				success += 1
-			else:
-				print('Not solved!')
-   
-		if algorithm == 5:
-			if (genetic_algorithm(board)):
-				success += 1
-			else:
-				print('Not solved!')
-		i += 1
-	
-	success_rate = success/10 * 100	
-	print("Success rate is " + str(success_rate))
+
+	board = init_board(n_queens)
+	print('Initial board: \n')
+	print_board(board)
+
+	if algorithm == 1:
+		random_search(board)
+	if algorithm == 2:
+		hill_climbing_pseudo_code(board)
+	if algorithm == 3:
+		hill_climbing_improved(board)
+	if algorithm == 4:		
+		simulated_annealing(board)
+	if algorithm == 5:
+		genetic_algorithm(board)
 
 
 # This line is the starting point of the program.

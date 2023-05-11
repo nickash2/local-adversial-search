@@ -1,6 +1,7 @@
 import sys
 import random
 import math
+import timeit
 
 MAXQ = 100
 
@@ -103,20 +104,6 @@ def init_board(nqueens):
 ------------------ Do not change the code above! ------------------
 """
 
-
-def state_space(board):
-	state_space = []
-
-	for column, row in enumerate(board):
-		for state in range(len(board)):
-			if state == row:
-				state_space.append('Q')
-			if state != row:
-				state_space.append('.')
-
-	return state_space
-
-
 def heuristic_state_space(board):
 	heuristic_state_space = state_space(board)
 	best_successor_evaluation = evaluate_state(board)
@@ -145,34 +132,46 @@ def heuristic_state_space(board):
 	board[move_queen_in_collumn - 1] = move_queen_to_position
 	return board
 
+def state_space(board):
+	state_space = []
+
+	for column, row in enumerate(board):
+		for state in range(len(board)):
+			if state == row:
+				state_space.append('Q')
+			if state != row:
+				state_space.append('.')
+
+	return state_space
+
 
 def heuristic_state_space_improved(board):
-	heuristic_state_space = state_space(board)
-	best_successor_evaluation = evaluate_state(board)
-	set_of_best_successors = []
-	i = 0
-	for column, row in enumerate(board):
-		for possible_successor in range(len(board)):
-			# if current queen is not at that state
-			if possible_successor != row:
-				possible_successor_board = board.copy()
-				possible_successor_board[column] = possible_successor
-				successor_evaluation = evaluate_state(possible_successor_board)
-				heuristic_state_space[i] = successor_evaluation
-				if successor_evaluation == best_successor_evaluation:
-					set_of_best_successors.append(i)
-				if successor_evaluation > best_successor_evaluation:
-					best_successor_evaluation = successor_evaluation
-					set_of_best_successors.clear()
-					set_of_best_successors.append(i)
-			i = i + 1
-	best_successor = random.choice(set_of_best_successors)
+    heuristic_state_space = state_space(board)
+    best_successor_evaluation = evaluate_state(board)
+    set_of_best_successors = []
+    i = 0
+    for column, row in enumerate(board):
+        for possible_successor in range(len(board)):
+            # if current queen is not at that state
+            if possible_successor != row:
+                possible_successor_board = board.copy()
+                possible_successor_board[column] = possible_successor
+                successor_evaluation = evaluate_state(possible_successor_board)
+                heuristic_state_space[i] = successor_evaluation
+                if successor_evaluation == best_successor_evaluation:
+                    set_of_best_successors.append(i)
+                if successor_evaluation > best_successor_evaluation:
+                    best_successor_evaluation = successor_evaluation
+                    set_of_best_successors.clear()
+                    set_of_best_successors.append(i)
+            i = i + 1
+    best_successor = random.choice(set_of_best_successors)
 
-	move_queen_in_collumn = math.ceil((best_successor + 1) / len(board))
-	move_queen_to_position = best_successor - \
-		((move_queen_in_collumn - 1) * len(board))
-	board[move_queen_in_collumn - 1] = move_queen_to_position
-	return board, set_of_best_successors
+    move_queen_in_collumn = math.ceil((best_successor + 1) / len(board))
+    move_queen_to_position = best_successor - \
+        ((move_queen_in_collumn - 1) * len(board))
+    board[move_queen_in_collumn - 1] = move_queen_to_position
+    return board
 
 
 def random_search(board):
@@ -289,6 +288,14 @@ def time_to_temperature(k, kmax):
 	return (1 - ((k + 1) / kmax))
 
 
+def time_to_temperature_slow(t): # too slowly
+    return 1 / math.log(t + 2)
+
+
+def time_to_temperature_fast(t, kmax):
+    return 1 - (t / kmax) ** 2
+
+
 def random_successor(board):
     # Select a random column index
     random_col = random.randint(0, len(board)-1)
@@ -306,15 +313,15 @@ def simulated_annealing(board):
 	current_energy = count_conflicts(current)
 	
 	kmax = 1000
-	time = 0
+	time = 0	
+
  
 	for time in range(kmax):
 		
-		temperature = time_to_temperature(time, kmax)
+		temperature = time_to_temperature_fast(time, kmax)
 		if (temperature == 0):
 			if (time < kmax):
-				print('Solved puzzle!')    # TODO: FIX PRINTING WHEN SOLVED
-			break   # breaks to return board
+				break   # breaks to return board
 			
 		next_successor = random_successor(current)
 		deltaE = count_conflicts(next_successor) - current_energy        #heuristics?
@@ -328,7 +335,11 @@ def simulated_annealing(board):
 				current = next_successor
 				current_energy = count_conflicts(current)
 		
-	
+	if count_conflicts(current) == 0:
+		print('Solved Puzzle!')
+  
+	else:
+		print('No Solution Found!')
 	print('Final state is:')
 	print_board(current)
 	
@@ -338,8 +349,7 @@ def findFitness(board, nqueens):
 	return totalnum - count_conflicts(board)
 
 
-def randomSelection(population):
-	weights = [findFitness(population[i], len(population[0])) for i in range(len(population))]
+def randomSelection(population, weights):
 	return random.choices(population, weights=weights)[0]
 
 
@@ -354,13 +364,6 @@ def split_list(a_list):
 def crossover(parent1, parent2):
 	child1left, child2right = split_list(parent1.copy())
 	child2left, child1right = split_list(parent2.copy())
-	# print('parent1: ' + str(parent1))
-	# print('parent2: ' + str(parent2))
-	# print(child1left)
-	# print(child1right)
-	# print('--------')
-	# print(child2left)
-	# print(child2right)
 	return (child1left + child1right), (child2left + child2right)
 
 
@@ -378,34 +381,39 @@ def mutate(child):
 	return child
 
 
-def probability(chromosome, nqueens, maxFitness):
-	
-	return findFitness(chromosome, nqueens) / maxFitness 
-
-
 def evaluatePopulation(population, nqueens, maxFitness):
 	for idx in range(len(population)):
 		if (findFitness(population[idx], nqueens) == maxFitness):
 			return idx
 	return -1
 
+
 def genetic_algorithm(board):
+	startTime = timeit.default_timer()
 	nqueens = len(board)
-	population = [init_board(nqueens) for j  in range(nqueens) for k in range(nqueens)]
-	maxtime = 1000
+	population = [init_board(nqueens) for j in range(nqueens) for k in range(100)]
+	maxtime = 10
 	maxFitness = math.comb(nqueens, 2)
-	time = 0
+	elitism_num = 10  # number of best individuals to transfer to next generation
+	
 	while True:
-		time += 1
-		if (time == maxtime):
+		elapsed_time = timeit.default_timer() - startTime
+		
+		if (elapsed_time > maxtime):
 			print('Time exceeded')
 			break
 
 		new_population = []
-
-		for idx in range(len(population)):
-			x = randomSelection(population)
-			y = randomSelection(population)
+		weights = [findFitness(population[i], len(population[0])) for i in range(len(population))]
+		sorted_population = [p for _, p in sorted(zip(weights, population), reverse=True)]
+		new_population.extend(sorted_population[:elitism_num])  # add best individuals to new population
+		
+		for idx in range(elitism_num, len(population)):
+			if (elapsed_time > maxtime):
+				print('Time exceeded')
+				break
+			x = randomSelection(population, weights)
+			y = randomSelection(population, weights)
 			child1, child2 = reproduce(x,y)
 			if (random.uniform(0,1) < 0.2):
 				child1 = mutate(child1)
@@ -414,15 +422,20 @@ def genetic_algorithm(board):
 			new_population.append(child1)
 			new_population.append(child2)
 
+		print('Broken out of for loop')
+		print(len(population))
+		
 		population = new_population
-  
+
 		evalResult = evaluatePopulation(population, nqueens, maxFitness)
 		if (evalResult != -1):
 			print('Solved Puzzle!')
 			print('Final state is:')
 			print_board(population[evalResult])
 			break
-		
+
+	endtime = timeit.default_timer()
+	print('Time is ' + str(endtime - startTime))
 	
 
 

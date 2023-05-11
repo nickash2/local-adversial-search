@@ -72,7 +72,8 @@ def negamax_decision(state):
     return best_move, max
 
 
-def negamax_with_tt(state, depth, alpha, beta, colour, tt):
+def negamax_with_tt(state, depth, alpha, beta, tt):
+    
     hash_table = hash(state)
     
     # Check if the current state is already in the transposition table
@@ -91,7 +92,7 @@ def negamax_with_tt(state, depth, alpha, beta, colour, tt):
     for move in range(1, 4):
         if state - move > 0:
             # Make a move and recursively search the resulting state
-            m = negamax_with_tt(state - move, depth - 1, -beta, -alpha, -colour, tt)
+            m = negamax_with_tt(state - move, depth - 1, -beta, -alpha, tt)
             newval = -m[0]
             
             # Update the best move and utility found so far
@@ -117,7 +118,7 @@ def play_nim(state):
 
     while state != 1:
         # Call the modified Negamax function with the transposition table
-        value, move = negamax_with_tt(state, 10, -float("inf"), float("inf"), (-1) ** turn, tt)
+        value, move = negamax_with_tt(state, 10, -float("inf"), float("inf"), tt)
         print(str(state) + ": " + ("MAX" if not turn else "MIN") + " takes " + str(move) + ' with utility ' + str(value))
 
 
