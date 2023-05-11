@@ -8,7 +8,7 @@ def max_value(state):
         return -1
 
     for move in range(1, 4):
-        if state-move > 0:
+        if state - move > 0:
             m = min_value(state-move)
             max = m if m > max else max
 
@@ -22,7 +22,7 @@ def min_value(state):
         return 1
 
     for move in range(1, 4):
-        if state-move > 0:
+        if state - move > 0:
             m = max_value(state-move)
             min = m if m < min else min
 
@@ -31,7 +31,7 @@ def min_value(state):
 
 def minimax_decision(state, turn):
     best_move = None
-
+    utility = 0
     if turn == 0:  # MAX' turn
         max = -100000000000
 
@@ -41,6 +41,7 @@ def minimax_decision(state, turn):
                 if m > max:
                     max = m
                     best_move = move
+                    utility += 1
 
     else:
         min = 10000000000000
@@ -51,16 +52,36 @@ def minimax_decision(state, turn):
                 if m < min:
                     min = m
                     best_move = move
+                    utility -= 1
 
-    return best_move
+    return best_move, utility
+
+
+def negamax_decision(state):
+    best_move = None
+    if (state == 1):
+        return -1, 1
+   
+    max = -100000000000
+
+    for move in range(1, 4):
+        if state - move > 0:
+            m = negamax_decision(state - move)
+            newval = - m[1]
+            if newval > max:
+                max = newval
+                best_move = move
+                
+
+    return best_move, max
 
 
 def play_nim(state):
     turn = 0
 
     while state != 1:
-        move = minimax_decision(state, turn)
-        print(str(state) + ": " + ("MAX" if not turn else "MIN") + " takes " + str(move))
+        move, value = negamax_decision(state)
+        print(str(state) + ": " + ("MAX" if not turn else "MIN") + " takes " + str(move) + ' with utility ' + str(value))
 
         state -= move
         turn = 1 - turn
